@@ -1,0 +1,27 @@
+.chat-wrapper{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.chat{
+    border: 1px solid steelblue;
+    width: 300px;
+    height: 400px;
+}
+
+.message{
+    background: lightblue;
+    padding: 5px 10px;
+    border-radius: 10px;
+}
+
+.message-wrapper{
+    margin: 10px;
+}
+
+#messages-list{
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+}
