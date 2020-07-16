@@ -16,9 +16,9 @@ class Server:
         self.clients.remove(ws)
         logging.info(f'{ws.remote_address} disconnects.')
 
-    async def send_to_clients(self, message: str) -> None:
+    async def send_to_clients(self, message: str, sender_host: any) -> None:
         if self.clients:
-            await asyncio.wait([client.send(message) for client in self.clients])
+            await asyncio.wait([client.send(message) for client in self.clients if client.remote_address[1] != sender_host])
 
     async def ws_handler(self, ws: WebSocketServerProtocol, uri: str) -> None:
         await self.register(ws)
@@ -29,7 +29,7 @@ class Server:
 
     async def distribute(self, ws: WebSocketServerProtocol) -> None:
         async for message in ws:
-            await self.send_to_clients(message)
+            await self.send_to_clients(message, ws.remote_address[1])
 
 server = Server()
 start_server = websockets.serve(server.ws_handler, 'localhost', 4000)

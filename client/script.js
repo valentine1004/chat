@@ -7,20 +7,22 @@ let messages = [];
 let ws = new WebSocket('ws://localhost:4000');
 
 
-function createElem(text) {
+function createElem(text, align) {
     var newElem = document.createElement("div");
     newElem.className = 'message-wrapper';
+    newElem.style.textAlign = align;
     newElem.innerHTML = `<span class="message">${text}</span>`;
     messagesList.appendChild(newElem);
 }
 
 ws.onmessage = function (event) {
-    console.log(event);
-    createElem(event.data);
+    console.log('message', event);
+    createElem(event.data, 'left');
 }
 
 sendBtn.addEventListener('click', () => {
     messages.push(messageInput.value);
+    createElem(messageInput.value, 'right');
     ws.send(messageInput.value);
     messageInput.value = '';
 });
