@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import styled from "styled-components";
+import io from 'socket.io-client';
 
 const ChatWrapper = styled.div`
   display: flex;
@@ -30,7 +31,9 @@ const Message = styled.span`
     border-radius: 10px;
 `;
 
-const ws = new WebSocket('ws://localhost:4000');
+// const ws = new WebSocket('ws://localhost:4000');
+// var socket = io.connect('http://' + document.domain + ':' + window.location.port + '/test');
+var socket = io.connect('http://127.0.0.1:5000/test');
 
 const Chat = () => {
 
@@ -38,15 +41,19 @@ const Chat = () => {
     const [messages, updateMessages] = useState<{ text: string, align: string }[]>([]);
 
     useEffect(() => {
-        ws.onmessage = function (event) {
-            updateMessages((prevMessages) => [...prevMessages, {text: event.data, align: 'left'}]);
-        }
-        return () => ws.close();
+        socket.on('my response', function(msg: any) {
+            console.log('msg', msg);
+        });
+        // ws.onmessage = function (event) {
+        //     updateMessages((prevMessages) => [...prevMessages, {text: event.data, align: 'left'}]);
+        // }
+        // return () => ws.close();
     }, []);
 
     const onSubmit = (): void => {
         updateMessages([...messages, {text: currentMessage, align: 'right'}]);
-        ws.send(currentMessage);
+        // ws.send(currentMessage);
+        socket.emit('my event', {data: currentMessage});
         setCurrentMessage('');
     }
 
