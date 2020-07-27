@@ -17,6 +17,8 @@ class Server:
         logging.info(f'{ws.remote_address} disconnects.')
 
     async def send_to_clients(self, message: str, sender_host: any) -> None:
+
+
         if self.clients:
             await asyncio.wait([client.send(message) for client in self.clients if client.remote_address[1] != sender_host])
 
