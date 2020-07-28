@@ -12,17 +12,14 @@ socketio = SocketIO(app, cors_allowed_origins='*')
 def index():
     return app.send_static_file('index.html')
 
-@socketio.on('my event', namespace='/test')
-def test_message(message):
-    emit('my response', {'data': message['data']})
 
-@socketio.on('my broadcast event', namespace='/test')
+@socketio.on('send message', namespace='/test')
 def test_message(message):
-    emit('my response', {'data': message['data']}, broadcast=True)
+    emit('get message', {'data': message['data'], 'userId': message['userId']}, broadcast=True)
 
 @socketio.on('connect', namespace='/test')
 def test_connect():
-    emit('my response', {'data': 'Connected'})
+    print('Connected')
 
 @socketio.on('disconnect', namespace='/test')
 def test_disconnect():

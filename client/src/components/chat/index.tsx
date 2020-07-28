@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useMemo} from 'react';
 import styled from "styled-components";
 import io from 'socket.io-client';
 
@@ -40,25 +40,37 @@ const Chat = () => {
     const [currentMessage, setCurrentMessage] = useState<string>('');
     const [messages, updateMessages] = useState<{ text: string, align: string }[]>([]);
 
+    const getId = () => {
+        return '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    const userId = useMemo(() => getId(), []);
+
     useEffect(() => {
-        socket.on('my response', function(msg: any) {
-            console.log('msg', msg);
+        socket.on('get message', function(msg: any) {
+            console.log(msg);
+            if(msg.userId !== userId){
+                updateMessages((prevMessages) => [...prevMessages, {text: msg.data, align: 'left'}]);
+            }
         });
-        // ws.onmessage = function (event) {
-        //     updateMessages((prevMessages) => [...prevMessages, {text: event.data, align: 'left'}]);
-        // }
-        // return () => ws.close();
-    }, []);
+        return () => {
+            socket.close();
+        }
+    }, [userId]);
 
     const onSubmit = (): void => {
         updateMessages([...messages, {text: currentMessage, align: 'right'}]);
-        // ws.send(currentMessage);
-        socket.emit('my event', {data: currentMessage});
+        socket.emit('send message', {data: currentMessage, userId});
         setCurrentMessage('');
     }
 
     return (
         <ChatWrapper>
+            <select>
+                <option>Room 1</option>
+                <option>Room 2</option>
+                <option>Room 3</option>
+            </select>
             <ChatBlock id="chat">
                 <div>
                     <input
