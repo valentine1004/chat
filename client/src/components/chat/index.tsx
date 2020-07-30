@@ -1,4 +1,5 @@
 import React, {useEffect, useState, useMemo} from 'react';
+import { useParams, useHistory } from 'react-router-dom';
 import styled from "styled-components";
 import io from 'socket.io-client';
 
@@ -37,6 +38,9 @@ var socket = io.connect('http://127.0.0.1:5000/test');
 
 const Chat = () => {
 
+    const { roomName } = useParams();
+    const history = useHistory();
+
     const [currentMessage, setCurrentMessage] = useState<string>('');
     const [messages, updateMessages] = useState<{ text: string, align: string }[]>([]);
 
@@ -47,6 +51,7 @@ const Chat = () => {
     const userId = useMemo(() => getId(), []);
 
     useEffect(() => {
+        socket.emit('join', {username: userId, room: roomName});
         socket.on('get message', function(msg: any) {
             console.log(msg);
             if(msg.userId !== userId){
@@ -54,9 +59,14 @@ const Chat = () => {
             }
         });
         return () => {
+            socket.emit('leave', {username: userId, room: roomName});
             socket.close();
         }
-    }, [userId]);
+    }, [userId, roomName]);
+
+    // useEffect(() => {
+    //     socket.emit('join', {username: userId, room: roomName});
+    // }, [roomName, userId])
 
     const onSubmit = (): void => {
         updateMessages([...messages, {text: currentMessage, align: 'right'}]);
@@ -64,12 +74,19 @@ const Chat = () => {
         setCurrentMessage('');
     }
 
+    const onChangeRoom = (e: any) => {
+        history.push('/rooms/' + e.target.value);
+    }
+
     return (
         <ChatWrapper>
-            <select>
-                <option>Room 1</option>
-                <option>Room 2</option>
-                <option>Room 3</option>
+            <select
+                defaultValue={roomName}
+                onChange={(e) => onChangeRoom(e)}
+            >
+                <option value="room1">Room 1</option>
+                <option value="room2">Room 2</option>
+                <option value="room3">Room 3</option>
             </select>
             <ChatBlock id="chat">
                 <div>
