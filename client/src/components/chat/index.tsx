@@ -32,9 +32,7 @@ const Message = styled.span`
     border-radius: 10px;
 `;
 
-// const ws = new WebSocket('ws://localhost:4000');
-// var socket = io.connect('http://' + document.domain + ':' + window.location.port + '/test');
-var socket = io.connect('http://127.0.0.1:5000/test');
+var socket = io.connect('http://127.0.0.1:5000/chat');
 
 const Chat = () => {
 
@@ -53,7 +51,6 @@ const Chat = () => {
     useEffect(() => {
         socket.emit('join', {username: userId, room: roomName});
         socket.on('get message', function(msg: any) {
-            console.log(msg);
             if(msg.userId !== userId){
                 updateMessages((prevMessages) => [...prevMessages, {text: msg.data, align: 'left'}]);
             }
@@ -64,13 +61,9 @@ const Chat = () => {
         }
     }, [userId, roomName]);
 
-    // useEffect(() => {
-    //     socket.emit('join', {username: userId, room: roomName});
-    // }, [roomName, userId])
-
     const onSubmit = (): void => {
         updateMessages([...messages, {text: currentMessage, align: 'right'}]);
-        socket.emit('send message', {data: currentMessage, userId});
+        socket.emit('send message', {data: currentMessage, userId, room: roomName});
         setCurrentMessage('');
     }
 
